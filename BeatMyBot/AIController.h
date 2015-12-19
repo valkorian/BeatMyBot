@@ -26,13 +26,16 @@ private:
   
 private:
   class StateMachine* TheStateMachine;
-  class Bot* Owner;
-  class Bot* ShootTarget;
+  
   Vector2D AStartTarget;
   std::list<Vector2D> Path;
 
-
+public:
   bool bFollowingPath;
   bool bTryToShootTarget;
+
+  class Bot* Owner;
+  class Bot* ShootTarget;
+  class Bot* MostDangerousTarget;
 };
 

@@ -10,10 +10,11 @@
 #include <time.h>
 #include "StateMachine.h"
 #include "mydrawengine.h"
+#include "TheStates.h"
 
 AIController::AIController():
 Owner(nullptr), bFollowingPath(false),
-TheStateMachine(nullptr), ShootTarget(nullptr)
+TheStateMachine(nullptr), ShootTarget(nullptr), MostDangerousTarget(nullptr)
 {
 
 }
@@ -61,7 +62,7 @@ void AIController::FollowPath()
   }
   
 
-  //DrawPath();
+  DrawPath();
   if (!CanSeePathToTarget())
   {
     Owner->m_Acceleration = AIBehaviors::Seek(Owner->m_Position, Owner->m_Velocity, Path.front());
@@ -94,7 +95,17 @@ void AIController::FollowPath()
 void AIController::Update()
 {
   if (!Owner) return;
-  if (TheStateMachine && Owner->IsAlive()) TheStateMachine->Update();
+  if (TheStateMachine)
+  {
+    if (Owner->IsAlive())
+    {
+      TheStateMachine->Update();
+    }
+    else
+    {
+      TheStateMachine->StateSwap(StartState::GetInstance());
+    }
+  }
 
   if (bFollowingPath && !Path.empty())
   {

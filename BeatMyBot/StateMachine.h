@@ -2,6 +2,7 @@
 // state machine to handle all the states
 class StateMachine
 {
+  friend class CanShootTarget;
 public:
   StateMachine(class AIController* AiController);
   void Update();

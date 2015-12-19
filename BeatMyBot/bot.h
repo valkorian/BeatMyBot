@@ -10,6 +10,9 @@ class Bot
 #else
   {
 #endif
+
+    friend class CanShootTarget;
+    friend class ReloadState;
 protected:
 
 	Vector2D m_Position;			// Current world coordinates
@@ -36,7 +39,7 @@ protected:
 public:
   int GetTeamNumber(){ return m_iOwnTeamNumber; }
   int GetBotNumber()  { return m_iOwnBotNumber; }
-  
+  int GetAmmo(){ return m_iAmmo; }
 
 	Bot();	
   ~Bot();

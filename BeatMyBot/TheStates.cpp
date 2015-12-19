@@ -128,4 +128,168 @@ CapDomPoint::~CapDomPoint()
 CapDomPoint::CapDomPoint()
 {
   
+  StateTransistion.push_back(StateTransistionType(CanShootTarget::GetInstance(), [](AIController* Controller)
+  {
+    if (!Controller){ return false; }
+    int OtherTeamNum = Controller->GetOwner()->GetTeamNumber() == 0 ? 1 : 0;
+    DynamicObjects* DyObj = DynamicObjects::GetInstance();
+    StaticMap* STMap = StaticMap::GetInstance();
+    for (unsigned int i = 0; i < MAXBOTSPERTEAM; ++i)
+    {
+      if (DyObj->GetBot(OtherTeamNum, i).IsAlive())
+      {
+        Vector2D OtherBotLoc = DyObj->GetBot(OtherTeamNum, i).GetLocation();
+
+        // are we close
+        if ((OtherBotLoc - Controller->GetOwner()->GetLocation()).magnitude() < 500.0f)
+        {
+          if (STMap->IsLineOfSight(Controller->GetOwner()->GetLocation(), OtherBotLoc))
+          {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+  ));
+
+  StateTransistion.push_back(StateTransistionType(ReloadState::GetInstance(), [](AIController* Controller) {return Controller->GetOwner()->GetAmmo() <= 0; }));
+}
+
+
+
+CanShootTarget* CanShootTarget::Instance = nullptr;
+
+void CanShootTarget::Enter(class AIController* Controller)
+{
+  Controller->StopMoving();
+  Controller->bFollowingPath = false;
+
+  int OtherTeamNum = Controller->GetOwner()->GetTeamNumber() == 0 ? 1 : 0;
+  DynamicObjects* DyObj = DynamicObjects::GetInstance();
+  StaticMap* STMap = StaticMap::GetInstance();
+  Bot* CloseBot = &DyObj->GetBot(OtherTeamNum, 0);
+  float CloseistDest = (CloseBot->GetLocation() - Controller->GetOwner()->GetLocation()).magnitude();
+  
+  for (unsigned int i = 1; i < MAXBOTSPERTEAM; ++i)
+  {
+    float NewDest = (DyObj->GetBot(OtherTeamNum, i).GetLocation() - Controller->GetOwner()->GetLocation()).magnitude();
+    if (NewDest < CloseistDest)
+    {
+      CloseistDest = NewDest;
+      CloseBot = &DyObj->GetBot(OtherTeamNum, i);
+    }
+  }
+
+  Controller->MostDangerousTarget = CloseBot;
+}
+
+void CanShootTarget::Exit(class AIController* Controller)
+{
+  Controller->MostDangerousTarget = nullptr;
+}
+
+void CanShootTarget::Update(class AIController* Controller)
+{
+  if ( !Controller->MostDangerousTarget || 
+       !Controller->MostDangerousTarget->IsAlive() ||
+       !StaticMap::GetInstance()->IsLineOfSight(Controller->Owner->GetLocation(), Controller->MostDangerousTarget->GetLocation()))
+  {
+    Controller->GetStateMahcine()->RestoreLastState();
+  }
+  else if (Controller->Owner->GetAccuracy() == 0.0f)
+  {
+    Controller->GetOwner()->SetTarget(Controller->MostDangerousTarget->GetTeamNumber(), Controller->MostDangerousTarget->GetBotNumber());
+  }
+  else if (Controller->Owner->GetAccuracy() > 0.7f || (Controller->MostDangerousTarget->m_bAiming && Controller->MostDangerousTarget->m_dTimeToCoolDown<0.1 && Controller->GetOwner()->GetAccuracy() > 0.3f))
+  {
+    Controller->GetOwner()->Shoot();
+  }
+  
+}
+
+
+
+CanShootTarget* CanShootTarget::Start()
+{
+  if (!Instance)
+  {
+    Instance = new CanShootTarget;
+  }
+  return Instance;
+}
+void CanShootTarget::ShutDown()
+{
+  delete Instance;
+  Instance = nullptr;
+}
+
+State* CanShootTarget::GetInstance()
+{
+  return Instance ? Instance : Start();
+}
+
+
+CanShootTarget::~CanShootTarget()
+{
+
+}
+
+CanShootTarget::CanShootTarget()
+{
+  StateTransistion.push_back(StateTransistionType(ReloadState::GetInstance(), [](AIController* Controller) {return Controller->GetOwner()->GetAmmo() <= 0; }));
+}
+
+
+
+ReloadState* ReloadState::Instance = nullptr;
+
+void ReloadState::Enter(class AIController* Controller)
+{
+  Controller->PathTo(StaticMap::GetInstance()->GetClosestResupplyLocation(Controller->Owner->GetLocation()));
+}
+
+void ReloadState::Exit(class AIController* Controller)
+{
+
+}
+
+void ReloadState::Update(class AIController* Controller)
+{
+  if (Controller->Owner->m_iAmmo >= MAXAMMO)
+  {
+    Controller->GetStateMahcine()->RestoreLastState();
+  }
+}
+
+
+
+ReloadState* ReloadState::Start()
+{
+  if (!Instance)
+  {
+    Instance = new ReloadState;
+  }
+  return Instance;
+}
+void ReloadState::ShutDown()
+{
+  delete Instance;
+  Instance = nullptr;
+}
+
+State* ReloadState::GetInstance()
+{
+  return Instance ? Instance : Start();
+}
+
+
+ReloadState::~ReloadState()
+{
+
+}
+
+ReloadState::ReloadState()
+{
 }

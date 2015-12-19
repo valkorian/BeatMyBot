@@ -30,7 +30,7 @@ void StateMachine::StateSwap(class State* NewState)
 void StateMachine::RestoreLastState()
 {
   // if we have a last state go into it if not go into start state
-  if (LastState)
+  if (LastState && LastState != CurrentState)
   {
     StateSwap(LastState);
   }
@@ -42,6 +42,9 @@ void StateMachine::RestoreLastState()
 
 StateMachine::~StateMachine()
 {
+  // shut down al of the states
   StartState::ShutDown();
   CapDomPoint::ShutDown();
+  CanShootTarget::ShutDown();
+  ReloadState::ShutDown();
 }

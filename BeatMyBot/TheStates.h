@@ -44,3 +44,43 @@ private:
   static CapDomPoint* Instance;
 };
 
+
+class CanShootTarget : public State
+{
+public:
+  void Enter(class  AIController*) override;
+  void Exit(class AIController*)   override;
+  void Update(class AIController*) override;
+
+  static CanShootTarget* Start();
+
+  static void ShutDown();
+
+
+  static State* GetInstance();
+  ~CanShootTarget() override;
+private:
+  CanShootTarget();
+  static CanShootTarget* Instance;
+};
+
+
+class ReloadState : public State
+{
+public:
+  void Enter(class  AIController*) override;
+  void Exit(class AIController*)   override;
+  void Update(class AIController*) override;
+
+  static ReloadState* Start();
+
+  static void ShutDown();
+
+
+  static State* GetInstance();
+  ~ReloadState() override;
+private:
+  ReloadState();
+  static ReloadState* Instance;
+};
+
