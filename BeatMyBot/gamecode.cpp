@@ -37,7 +37,6 @@ ErrorType GameInit(bool bFullScreen)
 	pTheSoundEngine = MySoundEngine::Start(gHwnd);
 	pTheInputs = MyInputs::Start(g_hinstance, gHwnd);
 
-
 	MyDrawEngine::Start(gHwnd, bFullScreen);
 
 

@@ -149,6 +149,7 @@ void Network::WriteRepData()
     }
   }
   ClearRepData();
+  MarkHasRecievedDataAsRead();
 }
 
 

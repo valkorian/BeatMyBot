@@ -389,7 +389,6 @@ ErrorType Game::Update()
     Network* pNetwork = Network::GetInstance();
     // If not paused or minimised
     if (m_State == RUNNING)
-      // Update Dynamic objects
     {
 #ifdef SMARTNETWORK
       if (pNetwork->IsClient() && pNetwork->HasReceivedData())
@@ -400,7 +399,7 @@ ErrorType Game::Update()
       else
 #endif
       {
-
+        // Update Dynamic objects
         DynamicObjects::GetInstance()->Update(m_timer.m_fFrameTime);
       }
 
