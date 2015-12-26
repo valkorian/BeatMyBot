@@ -18,7 +18,8 @@ void Bot::GetReplicatedValues(std::vector<ReplicatedData>* TheVector, int* DataR
     RepData(this,m_bFiring)
     RepData(this,m_dDirection)
     RepData(this, m_dTimeToCoolDown)
-
+    RepData(this, m_iAimingAtTeam)
+    RepData(this, m_iAimingAtBot)
 }
 #endif
 			
