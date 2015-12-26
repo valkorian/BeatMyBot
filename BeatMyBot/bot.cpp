@@ -17,6 +17,7 @@ void Bot::GetReplicatedValues(std::vector<ReplicatedData>* TheVector, int* DataR
     RepData(this, m_dTimeToRespawn)
     RepData(this,m_bFiring)
     RepData(this,m_dDirection)
+    RepData(this, m_dTimeToCoolDown)
 
 }
 #endif
@@ -25,10 +26,14 @@ void Bot::GetReplicatedValues(std::vector<ReplicatedData>* TheVector, int* DataR
 void Bot::Update(float frametime)
 {
 
-	 if(m_iOwnTeamNumber==0)
-		ProcessAI();
-	 else
+  // only update if server
+  if (Network::GetInstance()->IsServer())
+  {
+  if (m_iOwnTeamNumber == 0)
+    ProcessAI();
+  else
     ProcessAIBadly();
+  }
 
 	// Check for respawn
 	if(this->m_dTimeToRespawn>0)
