@@ -13,13 +13,17 @@
 void Bot::GetReplicatedValues(std::vector<ReplicatedData>* TheVector, int* DataRepByteSize) const
 {
   RepData(this, m_Position)
-    RepData(this, m_iHealth)
-    RepData(this, m_dTimeToRespawn)
-    RepData(this,m_bFiring)
-    RepData(this,m_dDirection)
-    RepData(this, m_dTimeToCoolDown)
-    RepData(this, m_iAimingAtTeam)
-    RepData(this, m_iAimingAtBot)
+  RepData(this, m_iHealth)
+  RepData(this, m_dTimeToRespawn)
+  RepData(this, m_bFiring)
+  RepData(this, m_dDirection)
+  RepData(this, m_dTimeToCoolDown)
+  RepData(this, m_iAimingAtTeam)
+  RepData(this, m_iAimingAtBot)
+  RepData(this, m_bAiming)
+  RepData(this, m_iAmmo)
+  RepData(this, m_iOwnTeamNumber)
+  RepData(this, m_iOwnBotNumber)
 }
 #endif
 			
