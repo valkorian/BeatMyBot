@@ -38,6 +38,7 @@ void DynamicObjects::GetReplicatedValues(std::vector<ReplicatedData>* TheVector,
    RepData(this, m_rgDominationPoints[i].m_Location);
   }
 
+
   
 }
 #endif

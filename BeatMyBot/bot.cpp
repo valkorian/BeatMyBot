@@ -12,6 +12,7 @@
 #ifdef SMARTNETWORK
 void Bot::GetReplicatedValues(std::vector<ReplicatedData>* TheVector, int* DataRepByteSize) const
 {
+  
   RepData(this, m_Position)
   RepData(this, m_iHealth)
   RepData(this, m_dTimeToRespawn)
@@ -24,6 +25,7 @@ void Bot::GetReplicatedValues(std::vector<ReplicatedData>* TheVector, int* DataR
   RepData(this, m_iAmmo)
   RepData(this, m_iOwnTeamNumber)
   RepData(this, m_iOwnBotNumber)
+  
 }
 #endif
 			
@@ -153,7 +155,7 @@ void Bot::Update(float frametime)
 						range = 1.0;		// Probably aiming at yourself
 											// Otherwise suicide causes a divide by zero error.
 											// That's the real reason why the church is against it.
-
+          
 					float peakAccuracy = sqrt(ACCURATERANGE / range);
 					
 					// Only gain accuracy if nearly stopped

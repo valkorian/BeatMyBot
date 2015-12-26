@@ -7,6 +7,16 @@ const float Blood::LIFETIME = 1.0f;
 const float Pulse::LIFETIME = 0.25f;
 
 
+#ifdef SMARTNETWORK
+void Renderer::GetReplicatedValues(std::vector<ReplicatedData>* TheVector, int* DataRepByteSize) const
+{
+
+  RepData(this, m_rgBlood)
+  RepData(this, m_rgPulse)
+  RepData(this, m_rgShot)
+
+}
+#endif
 
 Renderer::Renderer()
 {
@@ -14,6 +24,9 @@ Renderer::Renderer()
 	m_iNextShot=0;
   m_iNextPulse = 0;
 	m_SoundFX.LoadAssets();
+#ifdef SMARTNETWORK
+  this->OnSpawnedObject(this);
+#endif
 }
 
 Renderer::~Renderer()

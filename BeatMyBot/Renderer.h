@@ -2,7 +2,7 @@
 #include "shapes.h"
 #include "ErrorType.h"
 #include "soundplayer.h"
-
+#include "NetworkFunctions.h"
 
 struct Shot
 {
@@ -36,7 +36,13 @@ struct Blood
 };
 
 class Renderer
+#ifdef SMARTNETWORK
+  : public NetworkFunctions
 {
+  GENERATE_NETWORK_BODY()
+#else
+  {
+#endif
 private:
 	static const int NUMBLOOD=500;
 	static const int NUMSHOTS=10;
