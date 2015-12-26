@@ -66,7 +66,7 @@ void Network::GenerateRepData()
   {
     ClearRepData();
   }
-
+  
   RepData = new char[DataToRepByteSize];
   int count = 0;
   for (std::vector<ReplicatedData>::iterator it = DataToReplicate.begin(); it != DataToReplicate.end(); it++)
@@ -75,9 +75,11 @@ void Network::GenerateRepData()
     for (unsigned int i = 0; i < it->Size; ++i)
     {
       RepData[count] = DataToRead[i];
+      
       ++count;
     }
   }
+
 }
 
 
@@ -91,7 +93,7 @@ void Network::ClearRepData()
 void Network::SmartSendToAllClients()
 {
   GenerateRepData();
-  SendToAllClients(&RepData, DataToRepByteSize);
+  SendToAllClients(RepData, DataToRepByteSize);
   ClearRepData();
   // reset the frame count since last update
   FramesSinceLastNetworkUpdate = 0;
@@ -126,7 +128,7 @@ void* Network::THREAD_SmartReceveData()
   ClearRepData();
 
   RepData = new char[DataToRepByteSize];
-  CopyReceivedDataInto(RepData, DataToRepByteSize);
+  CopyReceivedDataInto(&RepData[0], DataToRepByteSize);
   bHasReceivedData = true;
   return nullptr;
 }
@@ -561,8 +563,27 @@ void Network::SendToAllClients(void* Object, const int& size)
     Renderer::GetInstance()->DrawTextAt(Vector2D(120, 600), Numbuff);
 #endif
 
+    char* objChar = (char*)Object;
+    int A1 =0 ,A2 = 0;
+
+    char* A1Write = (char*)&A1;
+    for (int i = 0; i < 4; ++i)
+    {
+      A1Write[i] = objChar[i];
+    }
 
     bool HasDroppedClient = false;
+
+    A1 += 0;
+    if (A1Write[1] == objChar[1])
+    {
+      Renderer::GetInstance()->DrawTextAt(Vector2D(120, 300), L"MATCH");
+    }
+    else
+    {
+      Renderer::GetInstance()->DrawTextAt(Vector2D(120, 300), L"NOPE");
+    }
+
     // used to store a the client that has dropped if one is found 
     std::vector<DWORD>::iterator DroppedClient;
 

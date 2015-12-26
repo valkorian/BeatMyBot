@@ -30,11 +30,11 @@ void DynamicObjects::GetReplicatedValues(std::vector<ReplicatedData>* TheVector,
 {
   for (unsigned int i = 0; i < NUMTEAMS; ++i)
   {
-    RepData(this, m_rgTeams[i].m_iScore);
+   RepData(this, m_rgTeams[i].m_iScore);
   }
   for (unsigned int i = 0; i < NUMDOMINATIONPOINTS; ++i)
   {
-  //  RepData(this, m_rgDominationPoints[i].m_OwnerTeamNumber);
+   RepData(this, m_rgDominationPoints[i].m_OwnerTeamNumber);
   }
 }
 #endif

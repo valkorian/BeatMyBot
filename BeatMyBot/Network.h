@@ -9,7 +9,7 @@
 #define MAXPENDINGCONNECTIONS 5
 
 // number of frames before the network updated
-#define MAXTICKBEFOREUPDATE   5
+#define MAXTICKBEFOREUPDATE   1
 
 
 typedef char NetworkDataType;
