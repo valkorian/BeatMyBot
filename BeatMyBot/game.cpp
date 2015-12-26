@@ -396,7 +396,7 @@ ErrorType Game::Update()
         // if we got data from the server read it into rep data
         pNetwork->WriteRepData();
       }
-      else
+      else if (pNetwork->IsServer())
 #endif
       {
         // Update Dynamic objects

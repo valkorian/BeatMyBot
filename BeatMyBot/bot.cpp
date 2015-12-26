@@ -12,8 +12,8 @@
 #ifdef SMARTNETWORK
 void Bot::GetReplicatedValues(std::vector<ReplicatedData>* TheVector, int* DataRepByteSize) const
 {
-   RepData(this, m_Position)
-   RepData(this, m_iHealth)
+   //RepData(this, m_Position)
+   //RepData(this, m_iHealth)
 
 }
 #endif

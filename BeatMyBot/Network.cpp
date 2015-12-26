@@ -389,6 +389,8 @@ bool Network::ConnectToServer(const char* ServerIP)
     Role = ConnectionType::CLIENT;
     bIsConnectedToServer = true;
     Connected = true;
+    // start looking for data
+    SmartReceveData();
   }
   // we are no longer trying to connect
   bPendingConnection = false;
