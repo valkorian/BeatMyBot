@@ -22,7 +22,10 @@ void StateMachine::Update()
 void StateMachine::StateSwap(class State* NewState)
 {
   CurrentState->Exit(AiController);
-  LastState = CurrentState;
+  // only store last state if its diffrent
+  if (LastState != CurrentState)
+      LastState = CurrentState;
+
   CurrentState = NewState;
   CurrentState->Enter(AiController);
 }

@@ -36,10 +36,10 @@ void Bot::Update(float frametime)
   // only update if server
   if (Network::GetInstance()->IsServer())
   {
-  if (m_iOwnTeamNumber == 0)
-    ProcessAI();
+    if (m_iOwnTeamNumber == 0)
+      ProcessAI();
   else
-    ProcessAIBadly();
+     ProcessAIBadly();
   }
 
 	// Check for respawn
@@ -356,11 +356,26 @@ void Bot::TakeDamage(int amount)
 // and calls methods to analyse the map
 void Bot::StartAI()
 {
+  //if (m_iOwnTeamNumber == 0)
+  {
+  
   AiController = new AIController();
   if (AiController)
   {
     AiController->Initialise(this);
+    if (((m_iOwnBotNumber + 1) % 2) == 0)
+    {
+      AiController->bLeader = true;
+    }
+    else
+    {
+      AiController->bLeader = false;
+      AiController->Buddy = &DynamicObjects::GetInstance()->GetBot(m_iOwnTeamNumber, m_iOwnBotNumber + 3);
+    }
+    
+    
   }
+}
 }
 #include "gametimer.h"
 GameTimer G;

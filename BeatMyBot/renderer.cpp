@@ -11,9 +11,9 @@ const float Pulse::LIFETIME = 0.25f;
 void Renderer::GetReplicatedValues(std::vector<ReplicatedData>* TheVector, int* DataRepByteSize) const
 {
 
-  RepData(this, m_rgBlood)
-  RepData(this, m_rgPulse)
-  RepData(this, m_rgShot)
+  //RepData(this, m_rgBlood)
+ // RepData(this, m_rgPulse)
+ // RepData(this, m_rgShot)
 
 }
 #endif

@@ -565,26 +565,12 @@ void Network::SendToAllClients(void* Object, const int& size)
     Renderer::GetInstance()->DrawTextAt(Vector2D(120, 600), Numbuff);
 #endif
 
-    char* objChar = (char*)Object;
-    int A1 =0 ,A2 = 0;
-
-    char* A1Write = (char*)&A1;
-    for (int i = 0; i < 4; ++i)
-    {
-      A1Write[i] = objChar[i];
-    }
+    
 
     bool HasDroppedClient = false;
 
-    A1 += 0;
-    if (A1Write[1] == objChar[1])
-    {
-      Renderer::GetInstance()->DrawTextAt(Vector2D(120, 300), L"MATCH");
-    }
-    else
-    {
-      Renderer::GetInstance()->DrawTextAt(Vector2D(120, 300), L"NOPE");
-    }
+    
+   
 
     // used to store a the client that has dropped if one is found 
     std::vector<DWORD>::iterator DroppedClient;

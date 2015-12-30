@@ -13,8 +13,8 @@
 #include "TheStates.h"
 
 AIController::AIController():
-Owner(nullptr), bFollowingPath(false),
-TheStateMachine(nullptr), ShootTarget(nullptr), MostDangerousTarget(nullptr)
+Owner(nullptr), bFollowingPath(false), bLeader(false), bWantsToStopMoving(false),
+TheStateMachine(nullptr), ShootTarget(nullptr), MostDangerousTarget(nullptr), SecondShootTarget(nullptr)
 {
 
 }
@@ -45,24 +45,24 @@ void AIController::PathTo(Vector2D Target)
 {
   Path = AStar::GeneratePath(NodeList::GetInstance()->GetClosestNode(Owner->m_Position), NodeList::GetInstance()->GetClosestNode(Target));
   // put the target on the end of the path
-  Path.push_back(Target);
+  Path.push_back(Target + Vector2D(0, rand() % 50 - rand() % 50));
   AStartTarget = Target;
 
   bFollowingPath = true;
-
+  bWantsToStopMoving = false;
 }
 
 
 void AIController::FollowPath()
 {
   // Cant see the first point repath
-  if (!StaticMap::GetInstance()->IsLineOfSight(Owner->m_Position, Path.front()))
+ // if (!StaticMap::GetInstance()->IsLineOfSight(Owner->m_Position, Path.front()))
   {
-     PathTo(AStartTarget);
+  //   PathTo(AStartTarget);
   }
   
 
-  DrawPath();
+ DrawPath();
   if (!CanSeePathToTarget())
   {
     Owner->m_Acceleration = AIBehaviors::Seek(Owner->m_Position, Owner->m_Velocity, Path.front());
@@ -106,6 +106,16 @@ void AIController::Update()
       TheStateMachine->StateSwap(StartState::GetInstance());
     }
   }
+  if (bWantsToStopMoving)
+  {
+    
+    Owner->m_Acceleration = -Owner->m_Velocity;
+    if (Owner->m_Velocity.magnitude() < 20.0f)
+    {
+      bWantsToStopMoving = false;
+      Owner->m_Velocity = Vector2D(0.0f, 0.0f);
+    }
+  }
 
   if (bFollowingPath && !Path.empty())
   {
@@ -115,17 +125,12 @@ void AIController::Update()
   {
     StopMoving();
   }
- 
 }
 
 
 void AIController::StopMoving()
 {
-  if (Owner)
-  {
-    Owner->m_Acceleration = Vector2D(0, 0);
-    Owner->m_Velocity = Vector2D(0, 0);
-  }
+  bWantsToStopMoving = true;
 }
 
 
@@ -154,6 +159,7 @@ void AIController::ShootAt(Bot* ShootTarget)
 {
 
 }
+
 
 bool AIController::CanSeeShootTarget()
 {

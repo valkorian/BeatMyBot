@@ -7,7 +7,7 @@ AIBehaviors::AIBehaviors()
 
 Vector2D AIBehaviors::Seek(const Vector2D& CurrentPosition, const Vector2D& CurrrentVelcoity, const Vector2D& TargetPosition)
 {
-  return ((TargetPosition - CurrentPosition).unitVector() * MAXBOTSPEED) - CurrrentVelcoity;
+  return ((TargetPosition - CurrentPosition).unitVector() * MAXBOTSPEED)  -CurrrentVelcoity;
 }
 
 

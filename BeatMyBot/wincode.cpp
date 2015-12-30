@@ -162,8 +162,7 @@ int WINAPI WinMain(HINSTANCE hInstance,			// A number that registers the instanc
 
 
   
-  
-
+                     
 	if(CreateDXWindow(L"Shell Engine", 800, 600, 32, bFullScreen) == SUCCESS)
 	{
 		// The event loop
