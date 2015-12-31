@@ -49,6 +49,7 @@ public:
 
   void Reload();
 
+  void OnRespawn();
 	// Returns the location of the bot
 	Vector2D GetLocation();
 

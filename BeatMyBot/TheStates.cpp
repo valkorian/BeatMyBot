@@ -3,6 +3,8 @@
 #include "StateMachine.h"
 #include "staticmap.h"
 #include "dynamicObjects.h"
+#include "rules.h"
+#define SafeCircleSize 500
 StartState* StartState::Instance = nullptr;
 
 void StartState::Enter(class AIController* Controller) 
@@ -52,34 +54,25 @@ StartState::StartState()
   /*
   StateTransistion.push_back(StateTransistionType(CanShootTarget::GetInstance(), [](AIController* Controller)
   {
-    if (!Controller){ return false; }
-    int OtherTeamNum = Controller->GetOwner()->GetTeamNumber() == 0 ? 1 : 0;
+    Circle2D SafeCircle = Circle2D(Controller->Owner->GetLocation(), SafeCircleSize);
     DynamicObjects* DyObj = DynamicObjects::GetInstance();
-    StaticMap* STMap = StaticMap::GetInstance();
+
     for (unsigned int i = 0; i < MAXBOTSPERTEAM; ++i)
     {
-      Bot& OtherBot = DyObj->GetBot(OtherTeamNum, i);
-      if (OtherBot.IsAlive())
+      Bot& TheBot = DyObj->GetBot(Controller->Owner->GetTeamNumber() + 1, i);
+      if (TheBot.IsAlive() && SafeCircle.Intersects(TheBot.GetLocation()))
       {
-        Vector2D OtherBotLoc = OtherBot.GetLocation();
-
-        // are we close
-        if ((OtherBotLoc - Controller->GetOwner()->GetLocation()).magnitude() < 500.0f)
-        {
-          if (STMap->IsLineOfSight(Controller->GetOwner()->GetLocation(), OtherBotLoc))
-          {
-            return true;
-          }
-        }
+        // Someone is in my safe circle Shoot it 
+        return true;
       }
     }
+    //MyDrawEngine::GetInstance()->FillCircle(SafeCircle.GetCentre(), SafeCircleSize, MyDrawEngine::DARKGREEN);
     return false;
   }
   ));
   */
   StateTransistion.push_back(StateTransistionType(CapDomPoint::GetInstance(), [](AIController* Controller) {return (Controller->GetOwner()->GetAmmo() > 0); }));
   StateTransistion.push_back(StateTransistionType(ReloadState::GetInstance(), [](AIController* Controller) {return (Controller->GetOwner()->GetAmmo() <= 0); }));
-  StateTransistion.push_back(StateTransistionType(CapDomPoint::GetInstance(), [](AIController* Controller) {return true; }));
 
 }
 
@@ -102,32 +95,31 @@ void CapDomPoint::Enter(class AIController* Controller)
       count++;
     }
   }
- if (count == 0)
- {
-   Controller->GetStateMahcine()->RestoreLastState();
-  }
-  // only one point go cap it 
- else if (count == 1)
+  if (count == 0)
   {
-   Controller->PathTo(DomPoint->m_Location);
+    Controller->GetStateMahcine()->StateSwap(GuardDomPoint::GetInstance());
   }
-  // go to random point
+  if (count == 1)
+  {
+   Controller->MoveTo(DomPoint->m_Location);
+  }
+  // go to your point
   else
   {
  
-    Controller->PathTo(DynObj->GetDominationPoint(Controller->GetOwner()->GetBotNumber() % 3).m_Location);
+    Controller->MoveTo(DynObj->GetDominationPoint(Controller->GetOwner()->GetBotNumber() % 3).m_Location);
   }
   
 }
 
-void CapDomPoint::Exit(class AIController* Controller)
+void CapDomPoint::Exit( AIController* Controller)
 {
 
 }
 
-void CapDomPoint::Update(class AIController* Controller)
+void CapDomPoint::Update( AIController* Controller)
 {
-
+  
 }
 
 
@@ -159,11 +151,13 @@ CapDomPoint::~CapDomPoint()
 
 CapDomPoint::CapDomPoint()
 {
-  
+  /*
   StateTransistion.push_back(StateTransistionType(CanShootTarget::GetInstance(), [](AIController* Controller)
   {return (DynamicObjects::GetInstance()->GetDominationPoint(Controller->GetOwner()->GetBotNumber() % 3).m_OwnerTeamNumber == Controller->Owner->GetTeamNumber()) &&
           ((Controller->Owner->GetLocation() - DynamicObjects::GetInstance()->GetDominationPoint(Controller->GetOwner()->GetBotNumber() % 3).m_Location).magnitude() < 300.0f); }));
-  
+  */
+  StateTransistion.push_back(StateTransistionType(GuardDomPoint::GetInstance(), [](AIController* Controller)
+  {return (DynamicObjects::GetInstance()->GetDominationPoint(Controller->GetOwner()->GetBotNumber() % 3).m_OwnerTeamNumber == Controller->Owner->GetTeamNumber()); }));
   
   
   StateTransistion.push_back(StateTransistionType(ReloadState::GetInstance(), [](AIController* Controller) {return ((Controller->GetOwner()->GetAmmo() <= 0) ||
@@ -178,7 +172,14 @@ CanShootTarget* CanShootTarget::Instance = nullptr;
 
 void CanShootTarget::Enter(class AIController* Controller)
 {
-  //Controller->StopMoving();
+
+  if (Controller->Owner->GetAmmo() <= 0)
+  {
+    // I have ammo I cant shoot s**t just run
+    Controller->GetStateMahcine()->StateSwap(ReloadState::GetInstance());
+    return;
+  }
+  Controller->StopMoving();
   Bot* CloseBot = nullptr;
   Controller->bFollowingPath = false;
   if (Controller->bLeader || Controller->Buddy->AiController->SecondShootTarget == nullptr)
@@ -194,12 +195,15 @@ void CanShootTarget::Enter(class AIController* Controller)
 
     for (unsigned int i = 1; i < MAXBOTSPERTEAM; ++i)
     {
-      float NewDest = (DyObj->GetBot(OtherTeamNum, i).GetLocation() - Controller->GetOwner()->GetLocation()).magnitude();
-      if (NewDest < CloseistDest)
+      if (DyObj->GetBot(OtherTeamNum, i).IsAlive()) 
       {
-        CloseistDest = NewDest;
-        SecondCloseBot = CloseBot;
-        CloseBot = &DyObj->GetBot(OtherTeamNum, i);
+        float NewDest = (DyObj->GetBot(OtherTeamNum, i).GetLocation() - Controller->GetOwner()->GetLocation()).magnitude();
+        if (NewDest < CloseistDest)
+        {
+          CloseistDest = NewDest;
+          SecondCloseBot = CloseBot;
+          CloseBot = &DyObj->GetBot(OtherTeamNum, i);
+        }
       }
     }
 
@@ -230,14 +234,21 @@ void CanShootTarget::Exit(AIController* Controller)
 
 void CanShootTarget::Update(AIController* Controller)
 {
+  // no target leave 
   if (!Controller->MostDangerousTarget)
   {
     Controller->GetStateMahcine()->StateSwap(StartState::GetInstance());
+    return;
+  }
+  // out of ammo i cant shoot a thing go reload
+  if (Controller->Owner->GetAmmo() <= 0)
+  {
+    Controller->GetStateMahcine()->StateSwap(ReloadState::GetInstance());
   }
   else if (!Controller->MostDangerousTarget->IsAlive() ||
            !StaticMap::GetInstance()->IsLineOfSight(Controller->Owner->GetLocation(), Controller->MostDangerousTarget->GetLocation()))
   {
-    Controller->GetStateMahcine()->StateSwap(CapDomPoint::GetInstance());
+    Controller->GetStateMahcine()->StateSwap(StartState::GetInstance());
   }
   else if (Controller->Owner->GetAccuracy() == 0.0f)
   {
@@ -291,7 +302,7 @@ ReloadState* ReloadState::Instance = nullptr;
 
 void ReloadState::Enter(class AIController* Controller)
 {
-  Controller->PathTo(StaticMap::GetInstance()->GetClosestResupplyLocation(Controller->Owner->GetLocation()));
+  Controller->MoveTo(StaticMap::GetInstance()->GetClosestResupplyLocation(Controller->Owner->GetLocation()));
 }
 
 void ReloadState::Exit(class AIController* Controller)
@@ -304,7 +315,7 @@ void ReloadState::Update(class AIController* Controller)
   
   if (Controller->GetOwner()->GetAmmo() >= MAXAMMO)
   {
-    Controller->GetStateMahcine()->StateSwap(CapDomPoint::GetInstance());
+    Controller->GetStateMahcine()->StateSwap(StartState::GetInstance());
   }
   
   
@@ -339,5 +350,85 @@ ReloadState::~ReloadState()
 
 ReloadState::ReloadState()
 {
- // StateTransistion.push_back(StateTransistionType(StartState::GetInstance(), [](AIController* Controller) {return (Controller->GetOwner()->GetAmmo() >= MAXAMMO); }));
+
+}
+
+
+
+GuardDomPoint* GuardDomPoint::Instance = nullptr;
+
+void GuardDomPoint::Enter(class AIController* Controller)
+{
+  StaticMap* STM = StaticMap::GetInstance();
+  Vector2D SeekTarget;
+  Vector2D DomPointPos = DynamicObjects::GetInstance()->GetDominationPoint(Controller->Owner->GetBotNumber() % 3).m_Location;
+  
+  // pick a random point near that we can see and get too
+  do 
+  {
+    SeekTarget = DomPointPos + Vector2D(float((rand() % 300) - (rand() % 300)), float((rand() % 300) - (rand() % 300)));
+
+  } while ((STM->IsInsideBlock(Circle2D(SeekTarget, 120))) && (!STM->IsLineOfSight(Controller->Owner->GetLocation(),SeekTarget)));
+  Controller->MoveTo(SeekTarget);
+}
+
+void GuardDomPoint::Exit(class AIController* Controller)
+{
+  
+}
+void GuardDomPoint::Update(class AIController* Controller)
+{
+  Circle2D SafeCircle = Circle2D(Controller->Owner->GetLocation(), SafeCircleSize);
+  DynamicObjects* DyObj = DynamicObjects::GetInstance();
+
+  for (unsigned int i = 0; i < MAXBOTSPERTEAM; ++i)
+  {
+    Bot& TheBot = DyObj->GetBot(Controller->Owner->GetTeamNumber() + 1, i);
+    if (TheBot.IsAlive() && SafeCircle.Intersects(TheBot.GetLocation()))
+    {
+      // Someone is in my safe circle Shoot it 
+      Controller->GetStateMahcine()->StateSwap(CanShootTarget::GetInstance());
+      return;
+    }
+  }
+  //MyDrawEngine::GetInstance()->FillCircle(SafeCircle.GetCentre(), SafeCircleSize,MyDrawEngine::CYAN);
+
+  if (Controller->IsCloseToSeekTarget(80.0f))
+  {
+    // Reenter the state to find a new target to seek too
+    Controller->GetStateMahcine()->StateSwap(GuardDomPoint::GetInstance());
+  }
+  
+}
+
+
+
+GuardDomPoint* GuardDomPoint::Start()
+{
+  if (!Instance)
+  {
+    Instance = new GuardDomPoint;
+  }
+  return Instance;
+}
+void GuardDomPoint::ShutDown()
+{
+  delete Instance;
+  Instance = nullptr;
+}
+
+State* GuardDomPoint::GetInstance()
+{
+  return Instance ? Instance : Start();
+}
+
+
+GuardDomPoint::~GuardDomPoint()
+{
+
+}
+
+GuardDomPoint::GuardDomPoint()
+{
+  StateTransistion.push_back(StateTransistionType(ReloadState::GetInstance(), [](AIController* Controller){return Controller->Owner->GetAmmo() <= MAXAMMO * 0.25; }));
 }

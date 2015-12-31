@@ -29,6 +29,13 @@ void Bot::GetReplicatedValues(std::vector<ReplicatedData>* TheVector, int* DataR
 }
 #endif
 			
+void Bot::OnRespawn()
+{
+  if (AiController)
+  {
+    AiController->OnRespawn();
+  }
+}
 
 void Bot::Update(float frametime)
 {
@@ -330,6 +337,11 @@ int Bot::GetTargetBot()
 
 void Bot::TakeDamage(int amount)
 {
+  // if we have a aicontroller tell it we took damage.. it may like to know, always good to keep it in the loop
+  if (AiController)
+  {
+    AiController->OnTakeDamage(amount);
+  }
 	m_iHealth-=amount;
 
 	if(m_iHealth<=0 && m_dTimeToRespawn<=0)
@@ -356,7 +368,7 @@ void Bot::TakeDamage(int amount)
 // and calls methods to analyse the map
 void Bot::StartAI()
 {
-  //if (m_iOwnTeamNumber == 0)
+  if (m_iOwnTeamNumber == 0)
   {
   
   AiController = new AIController();

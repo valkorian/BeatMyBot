@@ -10,7 +10,7 @@
 #include "mydrawengine.h"
 #include "NodeList.h"
 #include <vector>
-
+#include <time.h>
 #ifdef _DEBUG
 #include "Debug.h"
 #endif
@@ -240,7 +240,8 @@ ErrorType Game::Start()
   Network::Start();
   NodeList::Start();
   NodeList::GetInstance()->GenerateNodeList();
-
+  // Seed Rand
+  srand((unsigned int)time((unsigned int)(NULL)));
 	m_timer.mark();
 	m_timer.mark();
 	m_State = RUNNING;

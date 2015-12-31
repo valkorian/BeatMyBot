@@ -2,7 +2,7 @@
 #include "AIController.h"
 #include "StateMachine.h"
 
-
+#include "mydrawengine.h"
 
 
 
@@ -13,6 +13,7 @@ void State::CheckCanSwaps(AIController* Controller)
     if (it.CanSwapInTo(Controller))
     {
       Controller->GetStateMahcine()->StateSwap(it.GetNextState());
+      break;
     }
   }
 }

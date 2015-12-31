@@ -143,7 +143,7 @@ std::list<Vector2D>& AStar::GetPath(Node* ThisNode, std::list<Vector2D> &Path)
   {
     GetPath(ThisNode->AStarVal.AStarCamefrom, Path);
     // add a bit of random to path to stop bots running over same path
-    Path.add(ThisNode->AStarVal.AStarCamefrom->Position + Vector2D(rand() % 10 - rand() % 10, rand() % 10 - rand() % 10));
+    Path.add(ThisNode->AStarVal.AStarCamefrom->Position + Vector2D(float (rand() % 25 - rand() % 25), float (rand() % 25 - rand() % 25)));
     
     return Path;
     

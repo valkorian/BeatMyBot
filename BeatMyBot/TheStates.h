@@ -84,3 +84,22 @@ private:
   static ReloadState* Instance;
 };
 
+
+class GuardDomPoint : public State
+{
+public:
+  void Enter(class  AIController*) override;
+  void Exit(class AIController*)   override;
+  void Update(class AIController*) override;
+
+  static GuardDomPoint* Start();
+
+  static void ShutDown();
+
+
+  static State* GetInstance();
+  ~GuardDomPoint() override;
+private:
+  GuardDomPoint();
+  static GuardDomPoint* Instance;
+};

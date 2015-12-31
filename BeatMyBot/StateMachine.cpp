@@ -22,11 +22,12 @@ void StateMachine::Update()
 void StateMachine::StateSwap(class State* NewState)
 {
   CurrentState->Exit(AiController);
-  // only store last state if its diffrent
-  if (LastState != CurrentState)
-      LastState = CurrentState;
-
-  CurrentState = NewState;
+  //we are entering the same state just call enter and exit
+  if (NewState != CurrentState)
+  {
+    LastState = CurrentState;
+    CurrentState = NewState;
+  }
   CurrentState->Enter(AiController);
 }
 
@@ -50,4 +51,5 @@ StateMachine::~StateMachine()
   CapDomPoint::ShutDown();
   CanShootTarget::ShutDown();
   ReloadState::ShutDown();
+  GuardDomPoint::ShutDown();
 }

@@ -13,12 +13,11 @@
 #include "TheStates.h"
 
 AIController::AIController():
-Owner(nullptr), bFollowingPath(false), bLeader(false), bWantsToStopMoving(false),
+Owner(nullptr), bFollowingPath(false), bLeader(false), bWantsToStopMoving(false), bSeekingTarget(false),
 TheStateMachine(nullptr), ShootTarget(nullptr), MostDangerousTarget(nullptr), SecondShootTarget(nullptr)
 {
 
 }
-
 
 void AIController::SetOwner(Bot* NewOwner)
 {
@@ -40,15 +39,41 @@ void AIController::Initialise(Bot* NewOwner)
 
 }
 
-
-void AIController::PathTo(Vector2D Target)
+void AIController::OnRespawn()
 {
-  Path = AStar::GeneratePath(NodeList::GetInstance()->GetClosestNode(Owner->m_Position), NodeList::GetInstance()->GetClosestNode(Target));
-  // put the target on the end of the path
-  Path.push_back(Target + Vector2D(0, rand() % 50 - rand() % 50));
-  AStartTarget = Target;
+  if (TheStateMachine)
+    TheStateMachine->StateSwap(StartState::GetInstance());
 
-  bFollowingPath = true;
+  bWantsToStopMoving = false;
+}
+
+void AIController::OnTakeDamage(const int& amount)
+{
+  // someone shot me shoot shoot them back if i have the ammo to
+  if (TheStateMachine && Owner->GetAmmo() >=0)
+    TheStateMachine->StateSwap(CanShootTarget::GetInstance());
+}
+
+void AIController::MoveTo(Vector2D Target)
+{
+  // Can we see the target?
+  if (StaticMap::GetInstance()->IsLineOfSight(Owner->GetLocation(), Target))
+  {
+    bSeekingTarget = true;
+    bFollowingPath = false;
+    SeekTarget = Target;
+  }
+  else
+  // Nope *Sigh* Time to use A*
+  {
+
+    Path = AStar::GeneratePath(NodeList::GetInstance()->GetClosestNode(Owner->m_Position), NodeList::GetInstance()->GetClosestNode(Target));
+    // put the target on the end of the path
+    Path.push_back(Target);
+    AStartTarget = Target;
+    bFollowingPath = true;
+    bSeekingTarget = false;
+  }
   bWantsToStopMoving = false;
 }
 
@@ -56,13 +81,13 @@ void AIController::PathTo(Vector2D Target)
 void AIController::FollowPath()
 {
   // Cant see the first point repath
- // if (!StaticMap::GetInstance()->IsLineOfSight(Owner->m_Position, Path.front()))
+  if (!StaticMap::GetInstance()->IsLineOfSight(Owner->m_Position, Path.front()))
   {
-  //   PathTo(AStartTarget);
+     MoveTo(AStartTarget);
   }
   
 
- DrawPath();
+ // DrawPath();
   if (!CanSeePathToTarget())
   {
     Owner->m_Acceleration = AIBehaviors::Seek(Owner->m_Position, Owner->m_Velocity, Path.front());
@@ -72,7 +97,6 @@ void AIController::FollowPath()
     Owner->m_Acceleration = AIBehaviors::Arrive(Owner->m_Position, Owner->m_Velocity, AStartTarget);
   }
 
-  Owner->m_Acceleration += Owner->m_Velocity.magnitudeSquared() * AIObsticalAvoidance::WallAvoid(Owner->m_Position, Owner->m_Velocity);
 
   if (Path.size() > 1)
   {
@@ -101,36 +125,51 @@ void AIController::Update()
     {
       TheStateMachine->Update();
     }
-    else
-    {
-      TheStateMachine->StateSwap(StartState::GetInstance());
-    }
   }
   if (bWantsToStopMoving)
   {
-    
-    Owner->m_Acceleration = -Owner->m_Velocity;
     if (Owner->m_Velocity.magnitude() < 20.0f)
     {
       bWantsToStopMoving = false;
       Owner->m_Velocity = Vector2D(0.0f, 0.0f);
     }
+    Owner->m_Acceleration = -Owner->m_Velocity;
   }
+  
+  
+  
 
   if (bFollowingPath && !Path.empty())
   {
     FollowPath();
   }
+  else if (bSeekingTarget)
+  {
+    SeekToTarget();
+  }
   else
   {
     StopMoving();
   }
+
+  Owner->m_Acceleration += Owner->m_Velocity.magnitudeSquared() * AIObsticalAvoidance::WallAvoid(Owner->m_Position, Owner->m_Velocity);
 }
 
+bool AIController::IsCloseToSeekTarget(float Tolerance)
+{
+  return (Owner->GetLocation() - SeekTarget).magnitude() <= Tolerance;
+}
+
+Vector2D AIController::GetSeekTarget()
+{
+  return SeekTarget;
+}
 
 void AIController::StopMoving()
 {
   bWantsToStopMoving = true;
+  bSeekingTarget = false;
+  bFollowingPath = false;
 }
 
 
@@ -147,6 +186,16 @@ void AIController::DrawPath()
 
 }
 
+void AIController::SeekToTarget()
+{
+  Owner->m_Acceleration = AIBehaviors::Seek(Owner->m_Position, Owner->m_Velocity, SeekTarget);
+  if (IsCloseToSeekTarget())
+  {
+    bSeekingTarget = false;
+  }
+  //MyDrawEngine::GetInstance()->FillCircle(SeekTarget, 30, MyDrawEngine::GREEN);
+  //Renderer::GetInstance()->DrawLine(SeekTarget, Owner->m_Position,2);
+}
 
 AIController::~AIController()
 {
@@ -155,10 +204,7 @@ AIController::~AIController()
 
 
 
-void AIController::ShootAt(Bot* ShootTarget)
-{
 
-}
 
 
 bool AIController::CanSeeShootTarget()
