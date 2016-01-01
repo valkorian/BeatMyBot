@@ -5,15 +5,48 @@
 
 
 
-StateMachine::StateMachine(class AIController* _AiController)
-  :LastState(nullptr), CurrentState(StartState::GetInstance()),
+StateMachine::StateMachine(class AIController* _AiController,State* FirstState)
+  :LastState(nullptr), CurrentState(nullptr), EnterState(FirstState),
   AiController(_AiController)
 {
-  CurrentState->Enter(AiController);
+  
 }
 
+void StateMachine::EnterFirstState()
+{
+  StateSwap(EnterState);
+}
+
+void StateMachine::Initialize()
+{
+  // no state to enter in
+  if (!EnterState)
+  {
+    // right they set the current state... ok lets fix this
+    if (CurrentState)
+    {
+      EnterState = CurrentState;
+    }
+    else
+      // Humm no current or enter state .. Last state?
+    {
+      // Why why would this be set and not the others but hey i got a state
+      if (LastState)
+      {
+        EnterState = LastState;
+      }
+      // not supprised im here if i got this low ... humm its all null.. ok update can handle it been null lets hope someone swaps states
+    }
+  }
+  
+  // now enter the start state state
+  StateSwap(EnterState);
+  
+
+}
 void StateMachine::Update()
 {
+  if (!CurrentState) return;
   CurrentState->Update(AiController);
   CurrentState->CheckCanSwaps(AiController);
 }
@@ -21,7 +54,13 @@ void StateMachine::Update()
 
 void StateMachine::StateSwap(class State* NewState)
 {
-  CurrentState->Exit(AiController);
+  // no new state leave 
+  if (!NewState) return;
+
+  if (CurrentState)
+  {
+    CurrentState->Exit(AiController);
+  }
   //we are entering the same state just call enter and exit
   if (NewState != CurrentState)
   {
@@ -40,7 +79,7 @@ void StateMachine::RestoreLastState()
   }
   else
   {
-    StateSwap(StartState::GetInstance());
+    StateSwap(EnterState);
   }
 }
 

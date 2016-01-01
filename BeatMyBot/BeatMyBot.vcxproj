@@ -90,6 +90,7 @@
     <ClCompile Include="AIObsticalAvoidance.cpp" />
     <ClCompile Include="AStar.cpp" />
     <ClCompile Include="bot.cpp" />
+    <ClCompile Include="BotController.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="dynamicobjects.cpp" />
     <ClCompile Include="ErrorLogger.cpp" />
@@ -121,6 +122,7 @@
     <ClInclude Include="AIObsticalAvoidance.h" />
     <ClInclude Include="AStar.h" />
     <ClInclude Include="bot.h" />
+    <ClInclude Include="BotController.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="dynamicObjects.h" />

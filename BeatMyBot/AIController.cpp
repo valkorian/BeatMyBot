@@ -16,13 +16,13 @@ AIController::AIController():
 Owner(nullptr), bFollowingPath(false), bLeader(false), bWantsToStopMoving(false), bSeekingTarget(false),
 TheStateMachine(nullptr), ShootTarget(nullptr), MostDangerousTarget(nullptr), SecondShootTarget(nullptr)
 {
-
 }
 
 void AIController::SetOwner(Bot* NewOwner)
 {
   Owner = NewOwner;
 }
+
 
 
 void AIController::Initialise(Bot* NewOwner)
@@ -34,7 +34,16 @@ void AIController::Initialise(Bot* NewOwner)
   }
   if (Owner)
   {
-    TheStateMachine = new StateMachine(this);
+    // no statemachine lets give the base one
+    if (!TheStateMachine)
+    {
+      TheStateMachine = new StateMachine(this, StartState::GetInstance());
+    }
+    // Now do we have one let initialize it
+    if (TheStateMachine)
+    {
+      TheStateMachine->Initialize();
+    }
   }
 
 }
@@ -42,10 +51,11 @@ void AIController::Initialise(Bot* NewOwner)
 void AIController::OnRespawn()
 {
   if (TheStateMachine)
-    TheStateMachine->StateSwap(StartState::GetInstance());
+    TheStateMachine->EnterFirstState();
 
   bWantsToStopMoving = false;
 }
+
 
 void AIController::OnTakeDamage(const int& amount)
 {
@@ -53,6 +63,8 @@ void AIController::OnTakeDamage(const int& amount)
   if (TheStateMachine && Owner->GetAmmo() >=0)
     TheStateMachine->StateSwap(CanShootTarget::GetInstance());
 }
+
+
 
 void AIController::MoveTo(Vector2D Target)
 {
@@ -114,7 +126,30 @@ void AIController::FollowPath()
 }
 
 
-
+int GetStateAsNumber(State* TheState)
+{
+  if (TheState == StartState::GetInstance())
+  {
+    return 1;
+  }
+  else if (TheState == CapDomPoint::GetInstance())
+  {
+    return 2;
+  }
+  else if (TheState == CanShootTarget::GetInstance())
+  {
+    return 3;
+  }
+  else if (TheState == ReloadState::GetInstance())
+  {
+    return 4;
+  }
+  else if (TheState == GuardDomPoint::GetInstance())
+  {
+    return 5;
+  }
+  return 0;
+}
 
 void AIController::Update()
 {
@@ -153,6 +188,9 @@ void AIController::Update()
   }
 
   Owner->m_Acceleration += Owner->m_Velocity.magnitudeSquared() * AIObsticalAvoidance::WallAvoid(Owner->m_Position, Owner->m_Velocity);
+
+
+  MyDrawEngine::GetInstance()->WriteInt(Owner->m_Position - Vector2D(3.0f,3.0f), GetStateAsNumber(TheStateMachine->GetCurrentState()), MyDrawEngine::GREEN);
 }
 
 bool AIController::IsCloseToSeekTarget(float Tolerance)
@@ -189,7 +227,7 @@ void AIController::DrawPath()
 void AIController::SeekToTarget()
 {
   Owner->m_Acceleration = AIBehaviors::Seek(Owner->m_Position, Owner->m_Velocity, SeekTarget);
-  if (IsCloseToSeekTarget())
+  if (IsCloseToSeekTarget(10.0f))
   {
     bSeekingTarget = false;
   }

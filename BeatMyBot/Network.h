@@ -11,6 +11,7 @@
 // number of frames before the network updated
 #define MAXTICKBEFOREUPDATE   1
 
+#define DefaultPort 550
 
 typedef char NetworkDataType;
 
@@ -38,10 +39,10 @@ public:
   static void ShutDown();
 
   // host an network game returns true if success 
-  bool HostGame(const unsigned short &PortNumber);
+  bool HostGame(const unsigned short &PortNumber = DefaultPort);
 
   // join a network game returns true if success
-  bool JoinGame(const unsigned short &PortNumber, const char* ServerIP);
+  bool JoinGame(const char* ServerIP, const unsigned short &PortNumber = DefaultPort);
 
   // closed and removed all connections 
   void DropAllConnections();

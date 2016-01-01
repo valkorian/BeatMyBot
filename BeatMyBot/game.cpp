@@ -189,7 +189,7 @@ void Game::ServerAdressMenu(Renderer* pTheRenderer)
   if (MyInputs::GetInstance()->KeyPressed(DIK_RETURN))
   {
     DisplayConnectError = false;
-    if (Network::GetInstance()->JoinGame(550, IpAdressKeyboard.GetTextAsChar()))
+    if (Network::GetInstance()->JoinGame(IpAdressKeyboard.GetTextAsChar()))
     {
       CurrentLevelState = LevelState::Playing;
     }
@@ -221,7 +221,7 @@ void Game::DrawMenu(Renderer* pTheRenderer)
   if (pInputs->KeyPressed(DIK_H))
   {
 
-    if (Network::GetInstance()->HostGame(550))
+    if (Network::GetInstance()->HostGame())
     {
       CurrentLevelState = Playing;
     }
@@ -362,6 +362,13 @@ ErrorType Game::RunInterface()
 
 ErrorType Game::Update()
 {
+  /*
+  MyInputs::GetInstance()->SampleKeyboard();
+  if (MyInputs::GetInstance()->KeyPressed(DIK_SPACE))
+  {
+    DynamicObjects::GetInstance()->Reset();
+  }
+  */
 	static float DeltaTimeAdder = 0.0f;
 	static int FrameCounter = 0;
 	static int Currentfps = 20;
@@ -410,7 +417,7 @@ ErrorType Game::Update()
     if (pTheRenderer->GetIsValid() == false)
     {
       m_State = MINIMISED;			// Or some other reason why invalid
-    }
+    } 
     else
     {
       if (m_State == MINIMISED)

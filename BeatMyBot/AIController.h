@@ -14,14 +14,14 @@ public:
   void StopMoving();
   bool CanSeeShootTarget();
   bool CanSeePathToTarget();
-  void OnRespawn();
+  virtual void OnRespawn();
   void SeekToTarget();
-  void OnTakeDamage(const int& amount);
-  // DEBUGGING
-  void DrawPath();
+  virtual void OnTakeDamage(const int& amount);
   Vector2D GetSeekTarget();
   bool IsCloseToSeekTarget(float Tolerance = 40.0f);
   ~AIController();
+
+  void DrawPath();
 private:
   void FollowPath();
   
@@ -34,13 +34,15 @@ private:
 
 public:
   bool bFollowingPath;
+  bool bSeekingTarget;
   bool bTryToShootTarget;
   bool bLeader;
-  bool bSeekingTarget;
+
   class Bot* Buddy;
   class Bot* SecondShootTarget;
-  class Bot* Owner;
   class Bot* ShootTarget;
   class Bot* MostDangerousTarget;
+  class Bot* Owner;
+  
 };
 

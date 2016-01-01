@@ -4,7 +4,7 @@
 #include "staticmap.h"
 #include "dynamicObjects.h"
 #include "rules.h"
-#define SafeCircleSize 500
+#define SafeCircleSize 400
 StartState* StartState::Instance = nullptr;
 
 void StartState::Enter(class AIController* Controller) 
@@ -51,7 +51,7 @@ StartState::~StartState()
 
 StartState::StartState()
 {
-  /*
+  
   StateTransistion.push_back(StateTransistionType(CanShootTarget::GetInstance(), [](AIController* Controller)
   {
     Circle2D SafeCircle = Circle2D(Controller->Owner->GetLocation(), SafeCircleSize);
@@ -66,11 +66,11 @@ StartState::StartState()
         return true;
       }
     }
-    //MyDrawEngine::GetInstance()->FillCircle(SafeCircle.GetCentre(), SafeCircleSize, MyDrawEngine::DARKGREEN);
+   // MyDrawEngine::GetInstance()->FillCircle(SafeCircle.GetCentre(), SafeCircleSize, MyDrawEngine::DARKGREEN);
     return false;
   }
   ));
-  */
+  
   StateTransistion.push_back(StateTransistionType(CapDomPoint::GetInstance(), [](AIController* Controller) {return (Controller->GetOwner()->GetAmmo() > 0); }));
   StateTransistion.push_back(StateTransistionType(ReloadState::GetInstance(), [](AIController* Controller) {return (Controller->GetOwner()->GetAmmo() <= 0); }));
 
@@ -95,10 +95,10 @@ void CapDomPoint::Enter(class AIController* Controller)
       count++;
     }
   }
-  if (count == 0)
-  {
-    Controller->GetStateMahcine()->StateSwap(GuardDomPoint::GetInstance());
-  }
+ // if (count == 0)
+ // {
+ //   Controller->GetStateMahcine()->StateSwap(GuardDomPoint::GetInstance());
+ // }
   if (count == 1)
   {
    Controller->MoveTo(DomPoint->m_Location);
@@ -151,13 +151,30 @@ CapDomPoint::~CapDomPoint()
 
 CapDomPoint::CapDomPoint()
 {
-  /*
   StateTransistion.push_back(StateTransistionType(CanShootTarget::GetInstance(), [](AIController* Controller)
-  {return (DynamicObjects::GetInstance()->GetDominationPoint(Controller->GetOwner()->GetBotNumber() % 3).m_OwnerTeamNumber == Controller->Owner->GetTeamNumber()) &&
-          ((Controller->Owner->GetLocation() - DynamicObjects::GetInstance()->GetDominationPoint(Controller->GetOwner()->GetBotNumber() % 3).m_Location).magnitude() < 300.0f); }));
-  */
+  {
+    Circle2D SafeCircle = Circle2D(Controller->Owner->GetLocation(), SafeCircleSize);
+    DynamicObjects* DyObj = DynamicObjects::GetInstance();
+
+    for (unsigned int i = 0; i < MAXBOTSPERTEAM; ++i)
+    {
+      Bot& TheBot = DyObj->GetBot(Controller->Owner->GetTeamNumber() + 1, i);
+      if (TheBot.IsAlive() && SafeCircle.Intersects(TheBot.GetLocation()))
+      {
+        // Someone is in my safe circle Shoot it 
+        return true;
+      }
+    }
+    //MyDrawEngine::GetInstance()->FillCircle(SafeCircle.GetCentre(), SafeCircleSize, MyDrawEngine::DARKGREEN);
+    return false;
+  }
+  ));
   StateTransistion.push_back(StateTransistionType(GuardDomPoint::GetInstance(), [](AIController* Controller)
-  {return (DynamicObjects::GetInstance()->GetDominationPoint(Controller->GetOwner()->GetBotNumber() % 3).m_OwnerTeamNumber == Controller->Owner->GetTeamNumber()); }));
+  {
+    DynamicObjects* DyObj = DynamicObjects::GetInstance();
+    DominationPoint& DomPoint = DyObj->GetDominationPoint(Controller->GetOwner()->GetBotNumber() % 3);
+    return (DomPoint.m_OwnerTeamNumber == Controller->Owner->GetTeamNumber()) && StaticMap::GetInstance()->IsLineOfSight(Controller->Owner->GetLocation() , DomPoint.m_Location);
+  }));
   
   
   StateTransistion.push_back(StateTransistionType(ReloadState::GetInstance(), [](AIController* Controller) {return ((Controller->GetOwner()->GetAmmo() <= 0) ||
@@ -172,7 +189,6 @@ CanShootTarget* CanShootTarget::Instance = nullptr;
 
 void CanShootTarget::Enter(class AIController* Controller)
 {
-
   if (Controller->Owner->GetAmmo() <= 0)
   {
     // I have ammo I cant shoot s**t just run
@@ -363,12 +379,20 @@ void GuardDomPoint::Enter(class AIController* Controller)
   Vector2D SeekTarget;
   Vector2D DomPointPos = DynamicObjects::GetInstance()->GetDominationPoint(Controller->Owner->GetBotNumber() % 3).m_Location;
   
-  // pick a random point near that we can see and get too
-  do 
+  // if i cant see the dom point set the target to be it to move to it first
+  if (!STM->IsLineOfSight(Controller->Owner->GetLocation(), DomPointPos))
   {
-    SeekTarget = DomPointPos + Vector2D(float((rand() % 300) - (rand() % 300)), float((rand() % 300) - (rand() % 300)));
+    SeekTarget = DomPointPos;
+  }
+  else
+  {
+    // pick a random point near that we can see and get too
+    do
+    {
+      SeekTarget = DomPointPos + Vector2D(float((rand() % 300) - (rand() % 300)), float((rand() % 300) - (rand() % 300)));
 
-  } while ((STM->IsInsideBlock(Circle2D(SeekTarget, 120))) && (!STM->IsLineOfSight(Controller->Owner->GetLocation(),SeekTarget)));
+    } while ((STM->IsInsideBlock(Circle2D(SeekTarget, 120))) && (!STM->IsLineOfSight(Controller->Owner->GetLocation(), SeekTarget)));
+  }
   Controller->MoveTo(SeekTarget);
 }
 
@@ -393,12 +417,12 @@ void GuardDomPoint::Update(class AIController* Controller)
   }
   //MyDrawEngine::GetInstance()->FillCircle(SafeCircle.GetCentre(), SafeCircleSize,MyDrawEngine::CYAN);
 
-  if (Controller->IsCloseToSeekTarget(80.0f))
+  // new point if i cose to target or cant see it 
+  if (Controller->IsCloseToSeekTarget(80.0f) || !StaticMap::GetInstance()->IsLineOfSight(Controller->Owner->GetLocation(), Controller->GetSeekTarget()))
   {
     // Reenter the state to find a new target to seek too
     Controller->GetStateMahcine()->StateSwap(GuardDomPoint::GetInstance());
-  }
-  
+  }  
 }
 
 

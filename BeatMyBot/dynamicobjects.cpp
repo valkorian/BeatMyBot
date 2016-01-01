@@ -79,6 +79,23 @@ DynamicObjects* DynamicObjects::GetInstance()
 	return pInst;
 }
 
+void  DynamicObjects::Reset()
+{
+  for (unsigned int i = 0; i < MAXDOMINATIONPOINTS; ++i)
+  {
+    m_rgDominationPoints[i].m_OwnerTeamNumber = -1;
+  }
+  for (unsigned int i = 0; i < MAXTEAMS; ++i)
+  {
+    m_rgTeams[i].m_iScore = 0;
+    for (unsigned int f = 0; f < MAXBOTSPERTEAM; ++f)
+    { 
+      m_rgTeams[i].m_rgBots[f].m_dTimeToRespawn = 1;
+    }
+  }
+  
+}
+
 void DynamicObjects::Release()		// Static
 {
 	if(pInst)
@@ -240,7 +257,7 @@ void DynamicObjects::PlaceDominationPoint(Vector2D location)
 	if(m_iNumPlacedDominationPoints<NUMDOMINATIONPOINTS)
 	{
 		m_rgDominationPoints[m_iNumPlacedDominationPoints].m_Location=location;
-		m_rgDominationPoints[m_iNumPlacedDominationPoints].m_OwnerTeamNumber=-1;
+		m_rgDominationPoints[m_iNumPlacedDominationPoints].m_OwnerTeamNumber=-1; 
 		++m_iNumPlacedDominationPoints;
 	}
 }

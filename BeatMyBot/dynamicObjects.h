@@ -28,6 +28,7 @@ struct Team
 	void Reset()
 	{
 		m_iScore = 0;
+   
 	}
 
 	Team()
@@ -56,7 +57,7 @@ private:
 	float m_dNextScorePoint;						// Time until next points get added
 public:
 	static DynamicObjects* GetInstance();			// Thread-safe singleton
-
+  void Reset();
 	// Deletes pInst
 	static void Release();
 

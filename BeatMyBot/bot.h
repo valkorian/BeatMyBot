@@ -10,7 +10,7 @@ class Bot
 #else
   {
 #endif
-
+    friend class DynamicObjects;
     friend class CanShootTarget;
     friend class ReloadState;
 protected:
@@ -35,7 +35,7 @@ protected:
   
   friend class AIController;
   class AIController* AiController;
-
+  
 public:
   int GetTeamNumber(){ return m_iOwnTeamNumber; }
   int GetBotNumber()  { return m_iOwnBotNumber; }

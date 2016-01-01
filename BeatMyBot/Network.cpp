@@ -314,7 +314,7 @@ bool Network::HostGame(const unsigned short &PortNumber)
   return false;
 }
 
-bool Network::JoinGame(unsigned short const &PortNumber, const char* ServerIP)
+bool Network::JoinGame(const char* ServerIP, unsigned short const &PortNumber)
 {
   if (!bPendingConnection)
   {

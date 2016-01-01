@@ -102,6 +102,9 @@
     <ClCompile Include="TheStates.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BotController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Network.h">
@@ -198,6 +201,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="myinputs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BotController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
