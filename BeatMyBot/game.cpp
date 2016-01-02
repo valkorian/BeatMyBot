@@ -11,6 +11,7 @@
 #include "NodeList.h"
 #include <vector>
 #include <time.h>
+#include "DataLogger.h"
 #ifdef _DEBUG
 #include "Debug.h"
 #endif
@@ -223,7 +224,7 @@ void Game::DrawMenu(Renderer* pTheRenderer)
 
     if (Network::GetInstance()->HostGame())
     {
-      CurrentLevelState = Playing;
+      CurrentLevelState = LevelState::Playing;
     }
   }
   else if (pInputs->KeyPressed(DIK_J))
@@ -347,6 +348,14 @@ ErrorType Game::RunInterface()
 
     float ScreenXMiddle = MyDrawEngine::GetInstance()->GetScreenWidth() / 2.0f;
     pTheRenderer->DrawTextAt(Vector2D(ScreenXMiddle, 10), NetworkRole.c_str());
+    if (!DataLogger::IsRunning())
+    {
+#ifdef SMARTNETWORK
+      DataLogger::StartLogging(NetworkRole.c_str(),true);
+#else
+      DataLogger::StartLogging(NetworkRole.c_str(),false);
+#endif
+    }
   }
   else if (CurrentLevelState == LevelState::MenuIPPick)
   {
@@ -394,22 +403,14 @@ ErrorType Game::Update()
 	
   if (CurrentLevelState == Playing)
   {
-    Network* pNetwork = Network::GetInstance();
-    // If not paused or minimised
+    
     if (m_State == RUNNING)
     {
-#ifdef SMARTNETWORK
-      if (pNetwork->IsClient() && pNetwork->HasReceivedData())
-      {
-        // if we got data from the server read it into rep data
-        pNetwork->WriteRepData();
-      }
-      //else //if (pNetwork->IsServer())
-#endif
-      {
+
+      
         // Update Dynamic objects
         DynamicObjects::GetInstance()->Update(m_timer.m_fFrameTime);
-      }
+      
 
     }
 
@@ -439,7 +440,7 @@ ErrorType Game::Update()
         // Continue. Non-critical error.
       }
 
-      
+      Network* pNetwork = Network::GetInstance();
       if (pNetwork)
       {
         // we are a client but no longer have an connection to the server
@@ -454,7 +455,7 @@ ErrorType Game::Update()
             answer = FAILURE;
           }
         }
-#ifdef SMARTNETWORK
+#ifdef SMARTNETWORK     
         pNetwork->SmartHandleNetworkRep();
 #else 
         // handle replicating the dynamic object over the network.. will send if server will receive if client
@@ -508,7 +509,7 @@ ErrorType Game::Update()
 
 ErrorType Game::End()
 {
-  
+  DataLogger::StopLogging();
 	Renderer::Release();
 	StaticMap::Release();
 	DynamicObjects::Release();

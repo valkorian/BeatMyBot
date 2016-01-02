@@ -5,9 +5,12 @@
 #include "Helpers.h"
 #include "NetworkFunctions.h"
 #include <algorithm>
-
+#include "DataLogger.h"
 
 #include "Renderer.h"
+#include "gametimer.h"
+GameTimer NetworkTimer;
+
 
 Network* Network::Instance = nullptr;
 
@@ -161,7 +164,6 @@ void Network::ClearDataToReplicate()
   DataToReplicate.clear();
 }
 
-
 void Network::SmartHandleNetworkRep()
 {
   HandleFrameCounter();
@@ -171,6 +173,17 @@ void Network::SmartHandleNetworkRep()
     // clear the update request since we just filled it 
     bPendingNetworkUpdate = false;
   }
+  else
+  {
+    if (HasReceivedData())
+    {
+      // if we got data from the server read it into rep data
+      WriteRepData();
+    }
+  }
+  // log the size size of the packet and the time between frames
+  NetworkTimer.mark();
+  DataLogger::WriteTimeWithValue(NetworkTimer.m_fFrameTime, DataToRepByteSize);
 }
 
 #endif // end of smart network functions 
@@ -179,6 +192,8 @@ void Network::SmartHandleNetworkRep()
 
 Network::Network()
 {
+  NetworkTimer.mark();
+  NetworkTimer.mark();
   ActiveSocket = -1;
   bPendingShutDown = false;
   Role = ConnectionType::UNCONNECTED;
@@ -228,8 +243,8 @@ void Network::HandleNetWorkReplication(void* Object, const int& size)
   }
 
 
-
-
+  NetworkTimer.mark();
+  DataLogger::WriteTimeWithValue(NetworkTimer.m_fFrameTime, size);
 
 
 }
