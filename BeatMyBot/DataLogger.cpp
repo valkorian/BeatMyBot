@@ -30,7 +30,7 @@ void DataLogger::StartLogging(const wchar_t* Type,bool SmartNetwork)
   Buffer += CastToString(tm_year + 1900) + "--";
   Buffer += CastToString(tm_hour) + '-';
   Buffer += CastToString(tm_min) + '-';
-  Buffer += CastToString(tm_sec);
+ // Buffer += CastToString(tm_sec);
   TheFile.open(("Logs//" + Buffer), std::fstream::in | std::fstream::out | std::fstream::app);
 
   // set the logger to running if the file is open 

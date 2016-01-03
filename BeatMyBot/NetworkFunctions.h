@@ -4,7 +4,7 @@
 typedef char NetworkDataType;
 
 // smart will try to update less and shorten the packet size
-//#define SMARTNETWORK
+#define SMARTNETWORK
 
 #ifdef SMARTNETWORK
 

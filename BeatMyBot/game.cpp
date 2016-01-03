@@ -330,12 +330,13 @@ ErrorType Game::RunInterface()
       pTheRenderer->DrawTextAt(Vector2D(275.0f, 60.0f), buf);
                         
        
-      #ifdef SMARTNETWORK 
-      pTheRenderer->DrawTextAt(Vector2D(10.0f, 85.0f), L"Smart Network");
-      #else 
-      pTheRenderer->DrawTextAt(Vector2D(10.0f, 85.0f), L"Simple Network" );
-      #endif);
+      
     }
+#ifdef SMARTNETWORK 
+    pTheRenderer->DrawTextAt(Vector2D(10.0f, 85.0f), L"Smart Network");
+#else 
+    pTheRenderer->DrawTextAt(Vector2D(10.0f, 85.0f), L"Simple Network");
+#endif);
 
     
     
@@ -409,7 +410,11 @@ ErrorType Game::Update()
 
       
         // Update Dynamic objects
-        DynamicObjects::GetInstance()->Update(m_timer.m_fFrameTime);
+      // hack way to close the game
+      if (DynamicObjects::GetInstance()->Update(m_timer.m_fFrameTime) == FAILURE)
+      {
+        answer = FAILURE;
+      }
       
 
     }

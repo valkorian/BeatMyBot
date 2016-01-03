@@ -9,7 +9,7 @@
 #define MAXPENDINGCONNECTIONS 5
 
 // number of frames before the network updated
-#define MAXTICKBEFOREUPDATE   1
+#define MAXTICKBEFOREUPDATE   2
 
 #define DefaultPort 550
 

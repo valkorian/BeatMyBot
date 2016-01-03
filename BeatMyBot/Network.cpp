@@ -172,18 +172,18 @@ void Network::SmartHandleNetworkRep()
     SmartSendToAllClients();
     // clear the update request since we just filled it 
     bPendingNetworkUpdate = false;
+    // log the size size of the packet and the time between frames
+   // NetworkTimer.mark();
+    DataLogger::WriteTimeWithValue(NetworkTimer.m_fFrameTime, DataToRepByteSize);
   }
-  else
+  else if (HasReceivedData())
   {
-    if (HasReceivedData())
-    {
       // if we got data from the server read it into rep data
       WriteRepData();
-    }
+      // log the size size of the packet and the time between frames
+      DataLogger::WriteTimeWithValue(NetworkTimer.m_fFrameTime, DataToRepByteSize);
   }
-  // log the size size of the packet and the time between frames
   NetworkTimer.mark();
-  DataLogger::WriteTimeWithValue(NetworkTimer.m_fFrameTime, DataToRepByteSize);
 }
 
 #endif // end of smart network functions 
