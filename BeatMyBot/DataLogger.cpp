@@ -52,7 +52,7 @@ void DataLogger::WriteTimeWithValue(float Time, int Value)
     TheFile.seekp(0);
     TheFile << Time << ".ms"   "\t"; 
     TheFile << "\t\t\t|\t\t\t";
-    TheFile << Value << ".kb" << '\n';
+    TheFile << Value << ".bytes" << '\n';
   }
 }
 // close the file and finish any other jobs needed

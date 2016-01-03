@@ -434,9 +434,12 @@ int Network::CreateServerSocket(const unsigned short &PortNumber)
   // zero off all the data
   memset(&ServerAdress, 0, sizeof(ServerAdress));
 
+  
   // create the socket 
   TheSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-
+  // turn off Nagle's algorithm
+  int flag = 1;
+  setsockopt(TheSocket, IPPROTO_TCP, TCP_NODELAY, (char*)(&flag), sizeof(int));
   if (TheSocket == INVALID_SOCKET)
   {
     ErrorLogger::Writeln(L"Error in creating Server Socket");
