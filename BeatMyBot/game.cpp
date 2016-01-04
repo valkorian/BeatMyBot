@@ -408,7 +408,28 @@ ErrorType Game::Update()
     if (m_State == RUNNING)
     {
 
-      
+      Network* pNetwork = Network::GetInstance();
+      if (pNetwork)
+      {
+        // we are a client but no longer have an connection to the server
+        if (pNetwork->IsClient() && !pNetwork->IsConnectedToServer())
+        {
+          // swap to become an server 
+          if (!pNetwork->SwapFromClientToServer())
+            // failed to swap from client to server
+          {
+            ErrorLogger::Writeln(L"Failed to swap from client to server Terminating.");
+            //TODO Throw Error Screen
+            answer = FAILURE;
+          }
+        }
+#ifdef SMARTNETWORK     
+        pNetwork->SmartHandleNetworkRep();
+#else 
+        // handle replicating the dynamic object over the network.. will send if server will receive if client
+        pNetwork->HandleNetWorkReplication(DynamicObjects::GetInstance(), sizeof(DynamicObjects));
+#endif
+      }
         // Update Dynamic objects
       // hack way to close the game
       if (DynamicObjects::GetInstance()->Update(m_timer.m_fFrameTime) == FAILURE)
@@ -445,28 +466,7 @@ ErrorType Game::Update()
         // Continue. Non-critical error.
       }
 
-      Network* pNetwork = Network::GetInstance();
-      if (pNetwork)
-      {
-        // we are a client but no longer have an connection to the server
-        if (pNetwork->IsClient() && !pNetwork->IsConnectedToServer())
-        {
-          // swap to become an server 
-          if (!pNetwork->SwapFromClientToServer())
-            // failed to swap from client to server
-          {
-            ErrorLogger::Writeln(L"Failed to swap from client to server Terminating.");
-            //TODO Throw Error Screen
-            answer = FAILURE;
-          }
-        }
-#ifdef SMARTNETWORK     
-        pNetwork->SmartHandleNetworkRep();
-#else 
-        // handle replicating the dynamic object over the network.. will send if server will receive if client
-        pNetwork->HandleNetWorkReplication(DynamicObjects::GetInstance(), sizeof(DynamicObjects));
-#endif
-      }
+     
     }
     
 #ifdef _DEBUG
