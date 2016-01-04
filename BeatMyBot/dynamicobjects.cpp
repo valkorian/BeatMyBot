@@ -110,14 +110,7 @@ void DynamicObjects::Release()		// Static
 ErrorType DynamicObjects::Update(float frametime)
 {
  
-	// Update all bots
-	for(int i=0;i<NUMTEAMS;i++)
-	{
-		for(int f=0;f<NUMBOTSPERTEAM;f++)
-		{
-			m_rgTeams[i].m_rgBots[f].Update(frametime);
-		}
-	}
+	
  
   static float Timer = 1;
   Timer -= frametime;
@@ -203,6 +196,15 @@ ErrorType DynamicObjects::Update(float frametime)
 		// Next points will be awarded in one second
 		m_dNextScorePoint-=1.0;
 	}
+
+  // Update all bots
+  for (int i = 0; i<NUMTEAMS; i++)
+  {
+    for (int f = 0; f<NUMBOTSPERTEAM; f++)
+    {
+      m_rgTeams[i].m_rgBots[f].Update(frametime);
+    }
+  }
 
 	return SUCCESS;
 }
