@@ -31,9 +31,12 @@ void Bot::GetReplicatedValues(std::vector<ReplicatedData>* TheVector, int* DataR
 			
 void Bot::OnRespawn()
 {
-  if (AiController)
+  if (Network::GetInstance()->IsServer())
   {
-    AiController->OnRespawn();
+    if (AiController)
+    {
+      AiController->OnRespawn();
+    }
   }
 }
 
@@ -340,9 +343,12 @@ int Bot::GetTargetBot()
 void Bot::TakeDamage(int amount)
 {
   // if we have a aicontroller tell it we took damage.. it may like to know, always good to keep it in the loop
-  if (AiController)
+  if (Network::GetInstance()->IsServer())
   {
-    AiController->OnTakeDamage(amount);
+    if (AiController)
+    {
+      AiController->OnTakeDamage(amount);
+    }
   }
 	m_iHealth-=amount;
 
