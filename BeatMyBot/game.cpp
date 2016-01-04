@@ -408,6 +408,14 @@ ErrorType Game::Update()
     if (m_State == RUNNING)
     {
 
+      
+        // Update Dynamic objects
+      // hack way to close the game
+      if (DynamicObjects::GetInstance()->Update(m_timer.m_fFrameTime) == FAILURE)
+      {
+        answer = FAILURE;
+      }
+     
       Network* pNetwork = Network::GetInstance();
       if (pNetwork)
       {
@@ -430,13 +438,6 @@ ErrorType Game::Update()
         pNetwork->HandleNetWorkReplication(DynamicObjects::GetInstance(), sizeof(DynamicObjects));
 #endif
       }
-        // Update Dynamic objects
-      // hack way to close the game
-      if (DynamicObjects::GetInstance()->Update(m_timer.m_fFrameTime) == FAILURE)
-      {
-        answer = FAILURE;
-      }
-      
 
     }
 

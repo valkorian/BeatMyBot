@@ -40,14 +40,7 @@ void Bot::OnRespawn()
 void Bot::Update(float frametime)
 {
 
-  // only update if server
-  if (Network::GetInstance()->IsServer())
-  {
-    if (m_iOwnTeamNumber == 0)
-      ProcessAI();
-  else
-     ProcessAIBadly();
-  }
+ 
 
 	// Check for respawn
 	if(this->m_dTimeToRespawn>0)
@@ -212,6 +205,15 @@ void Bot::Update(float frametime)
 			m_dAccuracy =0;
 		}
 	}
+
+  // only update if server
+  if (Network::GetInstance()->IsServer())
+  {
+    if (m_iOwnTeamNumber == 0)
+      ProcessAI();
+    else
+      ProcessAIBadly();
+  }
 }
 
 void Bot::Reload()
