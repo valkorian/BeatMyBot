@@ -183,11 +183,13 @@ void Game::ServerAdressMenu(Renderer* pTheRenderer)
 
   static NumberKeyBoard IpAdressKeyboard;
   IpAdressKeyboard.UpDateKeyBoard();
+  pTheRenderer->DrawTextAt(ScreenCenter + Vector2D(-150, -50), L"Press 'Q' to quit back to main menu");
   pTheRenderer->DrawTextAt(ScreenCenter + Vector2D(-150,0), L"Enter Server Address and Press 'Enter' To Connect");
   if (!IpAdressKeyboard.TextIsEmpty())
     pTheRenderer->DrawTextAt(ScreenCenter + Vector2D(0.0f,50.0f), IpAdressKeyboard.GetText());
 
-  if (MyInputs::GetInstance()->KeyPressed(DIK_RETURN))
+  MyInputs* pInputs = MyInputs::GetInstance();
+  if (pInputs->KeyPressed(DIK_RETURN))
   {
     DisplayConnectError = false;
     if (Network::GetInstance()->JoinGame(IpAdressKeyboard.GetTextAsChar()))
@@ -200,6 +202,12 @@ void Game::ServerAdressMenu(Renderer* pTheRenderer)
       IpAdressKeyboard.FlushKeyBoard();
     }
   }
+  // go back to host
+  else if (pInputs->KeyPressed(DIK_Q))
+  {
+    CurrentLevelState = LevelState::Menu;
+    IpAdressKeyboard.FlushKeyBoard();
+  }
   
 
 }
@@ -209,9 +217,9 @@ void Game::DrawMenu(Renderer* pTheRenderer)
   MyDrawEngine* DrawEngine = MyDrawEngine::GetInstance();
   int ScreenY =  DrawEngine->GetScreenHeight();
   int ScreenX =  DrawEngine->GetScreenWidth();
-  pTheRenderer->DrawTextAt(Vector2D(ScreenX / 2.0f, ScreenY / 2.0f), L"Press 'H' host a game");
-  pTheRenderer->DrawTextAt(Vector2D(ScreenX / 2.0f, ScreenY / 2 + 50.0f), L"Press 'J' Join a game");
-
+  pTheRenderer->DrawTextAt(Vector2D(ScreenX / 2.0f, ScreenY / 2.0f), L"Press 'H' to host a game");
+  pTheRenderer->DrawTextAt(Vector2D(ScreenX / 2.0f, ScreenY / 2 + 50.0f), L"Press 'J' to Join a game");
+  pTheRenderer->DrawTextAt(Vector2D(ScreenX / 2.0f, ScreenY / 2 + 100.0f), L"Press 'esc' to quit");
   if (NodeList::GetInstance()->IsMapLoading())
   {
     pTheRenderer->DrawTextAt(Vector2D(ScreenX / 2.0f, 150.f), L"Loading Map");
@@ -349,6 +357,7 @@ ErrorType Game::RunInterface()
 
     float ScreenXMiddle = MyDrawEngine::GetInstance()->GetScreenWidth() / 2.0f;
     pTheRenderer->DrawTextAt(Vector2D(ScreenXMiddle, 10), NetworkRole.c_str());
+    /*
     if (!DataLogger::IsRunning())
     {
 #ifdef SMARTNETWORK
@@ -357,6 +366,7 @@ ErrorType Game::RunInterface()
       DataLogger::StartLogging(NetworkRole.c_str(),false);
 #endif
     }
+    */
   }
   else if (CurrentLevelState == LevelState::MenuIPPick)
   {
@@ -389,7 +399,7 @@ ErrorType Game::Update()
 	ErrorType answer=SUCCESS;
 
 	Renderer* pTheRenderer = Renderer::GetInstance();
-
+  /*
 	DeltaTimeAdder += m_timer.m_fFrameTime;
 	FrameCounter++;
 	if (DeltaTimeAdder >= 1.0f)
@@ -401,15 +411,13 @@ ErrorType Game::Update()
 	wchar_t Buff[10];
 	_itow_s(Currentfps, Buff, 10);
 	pTheRenderer->DrawTextAt(Vector2D(MyDrawEngine::GetInstance()->GetScreenWidth() * 0.95f, 0), Buff);
-	
+	*/
   if (CurrentLevelState == Playing)
   {
     
     if (m_State == RUNNING)
     {
-
-      
-        // Update Dynamic objects
+      // Update Dynamic objects
       // hack way to close the game
       if (DynamicObjects::GetInstance()->Update(m_timer.m_fFrameTime) == FAILURE)
       {
@@ -487,7 +495,7 @@ ErrorType Game::Update()
 	if (bShowDebug)
 	{
 		NodeList::GetInstance()->DrawAllNodes();
-		NodeList::GetInstance()->DrawAllEdges();
+		//NodeList::GetInstance()->DrawAllEdges();
 	}
 #endif
 

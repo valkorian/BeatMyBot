@@ -190,7 +190,7 @@ void AIController::Update()
   Owner->m_Acceleration += Owner->m_Velocity.magnitudeSquared() * AIObsticalAvoidance::WallAvoid(Owner->m_Position, Owner->m_Velocity);
 
 
-  MyDrawEngine::GetInstance()->WriteInt(Owner->m_Position - Vector2D(3.0f,3.0f), GetStateAsNumber(TheStateMachine->GetCurrentState()), MyDrawEngine::GREEN);
+  //MyDrawEngine::GetInstance()->WriteInt(Owner->m_Position - Vector2D(3.0f,3.0f), GetStateAsNumber(TheStateMachine->GetCurrentState()), MyDrawEngine::GREEN);
 }
 
 bool AIController::IsCloseToSeekTarget(float Tolerance)

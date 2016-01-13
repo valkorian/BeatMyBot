@@ -382,7 +382,8 @@ void GuardDomPoint::Enter(class AIController* Controller)
   // if i cant see the dom point set the target to be it to move to it first
   if (!STM->IsLineOfSight(Controller->Owner->GetLocation(), DomPointPos))
   {
-    SeekTarget = DomPointPos;
+   // SeekTarget = DomPointPos;
+    Controller->GetStateMahcine()->StateSwap(CapDomPoint::GetInstance());
   }
   else
   {

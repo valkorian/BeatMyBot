@@ -20,7 +20,7 @@ DynamicObjects::DynamicObjects()
 		}
 	}
   // run a 3 mins game
-  RemainingTime = 60*3;
+//  RemainingTime = 60*3;
 #ifdef SMARTNETWORK
   this->OnSpawnedObject(this);
 #endif
@@ -39,7 +39,7 @@ void DynamicObjects::GetReplicatedValues(std::vector<ReplicatedData>* TheVector,
    RepData(this, m_rgDominationPoints[i].m_Location);
   }
 
-  RepData(this, RemainingTime);
+  //RepData(this, RemainingTime);
 
   
 }
@@ -112,7 +112,7 @@ ErrorType DynamicObjects::Update(float frametime)
  
 	
  
-  static float Timer = 1;
+  /*static float Timer = 1;
   Timer -= frametime;
   if (Timer <= 0.0f)
   {
@@ -124,9 +124,11 @@ ErrorType DynamicObjects::Update(float frametime)
     // hack way to shut down game
     return ErrorType::FAILURE;
   }
+  
   Renderer* TheRender = Renderer::GetInstance();
   TheRender->DrawTextAt(Vector2D(0, 300),L"Remaining Time: ");
   TheRender->DrawNumberAt(Vector2D(150, 300), RemainingTime);
+  */
  
 
 	// Check for alliance changes to Domination points

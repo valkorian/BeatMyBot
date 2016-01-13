@@ -9,6 +9,9 @@
 
 #include "Renderer.h"
 #include "gametimer.h"
+#ifdef _DEBUG
+extern bool bShowDebug;
+#endif
 GameTimer NetworkTimer;
 
 
@@ -571,16 +574,21 @@ void Network::SendToAllClients(void* Object, const int& size)
   // only send if we are the server
   if (Role == ConnectionType::SERVER)
   {
-
-    Renderer::GetInstance()->DrawTextAt(Vector2D(10, 500), TEXT("PacketSize = "));
-    wchar_t Numbuff[10];
-    _itow_s(size, Numbuff, 10);
-    Renderer::GetInstance()->DrawTextAt(Vector2D(120, 500), Numbuff);
+#ifdef _DEBUG
+    if (bShowDebug)
+    {
+      Renderer::GetInstance()->DrawTextAt(Vector2D(10, 500), TEXT("PacketSize = "));
+      wchar_t Numbuff[10];
+      _itow_s(size, Numbuff, 10);
+      Renderer::GetInstance()->DrawTextAt(Vector2D(120, 500), Numbuff);
 
 #ifdef SMARTNETWORK
-    Renderer::GetInstance()->DrawTextAt(Vector2D(10, 600), TEXT("Vector Size = "));
-    _itow_s(DataToReplicate.size() , Numbuff, 10);
-    Renderer::GetInstance()->DrawTextAt(Vector2D(120, 600), Numbuff);
+      Renderer::GetInstance()->DrawTextAt(Vector2D(10, 600), TEXT("Vector Size = "));
+      _itow_s(DataToReplicate.size() , Numbuff, 10);
+      Renderer::GetInstance()->DrawTextAt(Vector2D(120, 600), Numbuff);
+#endif
+     }
+
 #endif
 
     

@@ -55,7 +55,7 @@ private:
 	static DynamicObjects* pInst;
 	int m_iNumPlacedDominationPoints;
 	float m_dNextScorePoint;						// Time until next points get added
-  int RemainingTime;
+  //int RemainingTime;
 public:
 	static DynamicObjects* GetInstance();			// Thread-safe singleton
   void Reset();
